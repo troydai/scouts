@@ -4,6 +4,9 @@ CLUSTER=kind-scout
 run:
 	@ go run cmd/main.go
 
+lint:
+	@ golangci-lint run
+
 up:
 	@ kubectl cluster-info --context kind-$(CLUSTER)
 	# @ docker build . -t fortune-datastore:dev -f docker/datastore/Dockerfile

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"context"
-
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+
+	"github.com/troydai/scouts/internal/httpserver"
 )
 
 func main() {
@@ -13,23 +13,8 @@ func main() {
 	)
 
 	core := fx.Options(
-		fx.Invoke(run),
+		httpserver.Module,
 	)
 
-	app := fx.New(support, core)
-
-	app.Run()
-}
-
-func run(lc fx.Lifecycle, logger *zap.Logger) {
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			logger.Info("hey, i'm scout.")
-			return nil
-		},
-		OnStop: func(ctx context.Context) error {
-			logger.Info("bye")
-			return nil
-		},
-	})
+	fx.New(support, core).Run()
 }
