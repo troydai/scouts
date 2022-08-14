@@ -7,11 +7,14 @@ run:
 lint:
 	@ golangci-lint run
 
-up:
-	@ kubectl cluster-info --context kind-$(CLUSTER)
+build: lint
 	@ docker build . -t scout:dev -f dockerfiles/scout/Dockerfile
 	@ docker build . -t scout-portal:dev -f dockerfiles/portal/Dockerfile
-	@ kind load docker-image scout:dev scout-portal:dev --name $(CLUSTER)
+	@ docker pull zookeeper
+	@ kind load docker-image scout:dev scout-portal:dev zookeeper:latest --name $(CLUSTER)
+
+up:
+	@ kubectl cluster-info --context kind-$(CLUSTER)
 	@ kubectl apply -f ./k8s/deployment-dev.yaml
 
 down:

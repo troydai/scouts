@@ -13,7 +13,7 @@ metadata:
   name: scout
   namespace: scout
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app.kubernetes.io/name: scout
@@ -52,3 +52,74 @@ spec:
   containers:
   - image: scout-portal:dev
     name: portal
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zk
+  namespace: scout
+spec:
+  serviceName: "zk"
+  replicas: 3
+  selector:
+    matchLabels:
+      api.kubernetes.io/name: zk
+  template:
+    metadata:
+      labels:
+        api.kubernetes.io/name: zk
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "api.kubernetes.io/name"
+                    operator: In
+                    values:
+                    - zk
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - image: zookeeper:latest
+        name: zk
+        ports:
+        - containerPort: 2181
+          name: client
+        - containerPort: 2888
+          name: follower
+        - containerPort: 3888
+          name: election
+        - containerPort: 8080
+          name: admin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zk-client
+  namespace: scout
+  labels:
+    api.kubernetes.io/name: zk-client
+spec:
+  ports:
+  - port: 2181
+    name: client
+  selector:
+    api.kubernetes.io/name: zk
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zk-server
+  namespace: scout
+  labels:
+    api.kubernetes.io/name: zk-server
+spec:
+  ports:
+  - port: 2888
+    name: follower
+  - port: 3888
+    name: election
+  clusterIP: None
+  selector:
+    api.kubernetes.io/name: zk
+
