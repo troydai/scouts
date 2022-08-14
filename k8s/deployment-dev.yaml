@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: scout
+  name: scout
+---
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  labels:
+    app.kubernetes.io/name: scout
+  name: scout
+  namespace: scout
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: scout
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: scout
+    spec:
+      containers:
+      - image: scout:dev
+        name: scout
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Never
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scout-svc
+  namespace: scout
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: scout
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: portal
+  namespace: scout
+  labels:
+    app.kubernetes.io/name: portal
+spec:
+  containers:
+  - image: scout-portal:dev
+    name: portal

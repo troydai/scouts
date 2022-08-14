@@ -9,15 +9,16 @@ lint:
 
 up:
 	@ kubectl cluster-info --context kind-$(CLUSTER)
-	# @ docker build . -t fortune-datastore:dev -f docker/datastore/Dockerfile
-	# @ kind load docker-image fortune-datastore:dev fortune-front:dev fortune-portal:dev --name $(CLUSTER)
-	# @ kubectl apply -f ./k8s/deployment-dev.yaml
+	@ docker build . -t scout:dev -f dockerfiles/scout/Dockerfile
+	@ docker build . -t scout-portal:dev -f dockerfiles/portal/Dockerfile
+	@ kind load docker-image scout:dev scout-portal:dev --name $(CLUSTER)
+	@ kubectl apply -f ./k8s/deployment-dev.yaml
 
 down:
-	# @ kubectl delete -f ./k8s/deployment-dev.yaml
+	@ kubectl delete -f ./k8s/deployment-dev.yaml
 
 portal:
-	@ kubectl exec -n fortune -it portal -- bash
+	@ kubectl exec -n scout -it portal -- bash
 
 # https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#create-the-cluster
 setup-kind:
