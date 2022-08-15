@@ -53,6 +53,18 @@ spec:
   - image: scout-portal:dev
     name: portal
 ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: portal-zk
+  namespace: scout
+  labels:
+    app.kubernetes.io/name: portal-zk
+spec:
+  containers:
+  - image: zookeeper:latest
+    name: zk
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -60,7 +72,7 @@ metadata:
   namespace: scout
 spec:
   serviceName: "zk"
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       api.kubernetes.io/name: zk
