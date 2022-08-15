@@ -3,6 +3,7 @@ module github.com/troydai/scouts
 go 1.19
 
 require (
+	github.com/go-zookeeper/zk v1.0.3
 	go.uber.org/fx v1.18.1
 	go.uber.org/zap v1.16.0
 )

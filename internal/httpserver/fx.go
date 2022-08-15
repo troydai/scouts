@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/troydai/scouts/internal/entry"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -19,11 +20,21 @@ var Module = fx.Options(
 	fx.Invoke(Register),
 )
 
-func Register(lc fx.Lifecycle, logger *zap.Logger, mux http.Handler) {
+type Param struct {
+	fx.In
+
+	Lifecycle fx.Lifecycle
+	Logger    *zap.Logger
+	Mux       http.Handler
+	ZkClient  *entry.ZkClient
+}
+
+func Register(param Param) {
+	logger := param.Logger
 	serverExitCh := make(chan error)
 	var server *http.Server
 
-	lc.Append(fx.Hook{
+	param.Lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			addr := fmt.Sprintf(":%d", _port)
 			lis, err := net.Listen("tcp", addr)
@@ -33,7 +44,7 @@ func Register(lc fx.Lifecycle, logger *zap.Logger, mux http.Handler) {
 
 			server := &http.Server{
 				Addr:    addr,
-				Handler: mux,
+				Handler: param.Mux,
 			}
 
 			go func() {
